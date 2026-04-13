@@ -1,4 +1,4 @@
-# Inventory Project
+# SMARTINVENTORY-mini
 
 A simple PHP inventory management system with product, supplier, and purchase tracking.
 
@@ -21,9 +21,4 @@ A simple PHP inventory management system with product, supplier, and purchase tr
 
 ## Notes
 
-- Add a GitHub remote and push the repository with:
-  ```bash
-  git remote add origin <YOUR_GITHUB_REPO_URL>
-  git branch -M main
-  git push -u origin main
-  ```
+- This repository was pushed from a local inventory project.
