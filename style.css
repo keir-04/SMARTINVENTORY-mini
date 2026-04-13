@@ -1,0 +1,32 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f5f7fa;
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+    border-radius: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 10px 20px rgba(0,0,0,0.2);
+}
+
+/* Card styling */
+.card {
+    border-radius: 12px;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 8px;
+}
+
+/* Tables */
+.table {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+}
