@@ -28,6 +28,12 @@ if(isset($_POST['submit'])) {
 }
 ?>
 
+<h4 class="mb-3"><i class="fas fa-plus-circle me-2"></i>Add Product</h4>
+
+<a href="../index.php" class="btn btn-secondary mb-3">
+    <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+</a>
+
 <form method="POST">
     <div class="mb-3">
         <label>Product Name</label>
