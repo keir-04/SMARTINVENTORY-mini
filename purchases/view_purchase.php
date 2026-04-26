@@ -1,6 +1,5 @@
 <?php
 include("../config/db.php");
-include("../includes/header.php");
 
 // Handle delete
 if (isset($_POST['delete_purchase'])) {
@@ -11,6 +10,34 @@ if (isset($_POST['delete_purchase'])) {
     try {
         // Get purchase items to update stock
         $items_result = $conn->query("SELECT product_id, quantity FROM purchase_items WHERE purchase_id = $purchase_id");
+
+        // Update product stock (subtract back)
+        while ($item = $items_result->fetch_assoc()) {
+            $update_stmt = $conn->prepare("UPDATE products SET stock = stock - ? WHERE product_id = ?");
+            $update_stmt->bind_param("ii", $item['quantity'], $item['product_id']);
+            $update_stmt->execute();
+        }
+        
+        // Delete purchase items
+        $conn->query("DELETE FROM purchase_items WHERE purchase_id = $purchase_id");
+        
+        // Delete purchase
+        $delete_stmt = $conn->prepare("DELETE FROM purchases WHERE purchase_id = ?");
+        $delete_stmt->bind_param("i", $purchase_id);
+        $delete_stmt->execute();
+        
+        $conn->commit();
+        echo "<div class='alert alert-success'>Purchase deleted successfully!</div>";
+        header("Location: view_purchase.php");
+        exit();
+        
+    } catch (Exception $e) {
+        $conn->rollback();
+        echo "<div class='alert alert-danger'>Error deleting purchase: " . $e->getMessage() . "</div>";
+    }
+}
+
+include("../includes/header.php");
         
         // Update product stock (subtract back)
         while ($item = $items_result->fetch_assoc()) {

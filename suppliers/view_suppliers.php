@@ -1,6 +1,5 @@
 <?php
 include("../config/db.php");
-include("../includes/header.php");
 
 // Handle delete
 if (isset($_POST['delete_supplier'])) {
@@ -12,13 +11,16 @@ if (isset($_POST['delete_supplier'])) {
     $check_stmt->execute();
     $check_result = $check_stmt->get_result();
     $count = $check_result->fetch_assoc()['count'];
-    
+
     if ($count > 0) {
         echo "<div class='alert alert-warning'>Cannot delete supplier: They have associated purchases. Remove purchases first.</div>";
     } else {
         $stmt = $conn->prepare("DELETE FROM suppliers WHERE supplier_id = ?");
         $stmt->bind_param("i", $supplier_id);
         if ($stmt->execute()) {
+            if ($conn->query("SELECT COUNT(*) as count FROM suppliers")->fetch_assoc()['count'] == 0) {
+                $conn->query("ALTER TABLE suppliers AUTO_INCREMENT = 1");
+            }
             echo "<div class='alert alert-success'>Supplier deleted successfully!</div>";
             header("Location: view_suppliers.php");
             exit();
@@ -27,6 +29,8 @@ if (isset($_POST['delete_supplier'])) {
         }
     }
 }
+
+include("../includes/header.php");
 
 $result = $conn->query("
 SELECT 

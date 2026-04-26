@@ -1,22 +1,43 @@
 <?php
+session_start();
 include("../config/db.php");
-include("../includes/header.php");
+
+$message = '';
+
+if (!isset($_SESSION['supplier_form_token'])) {
+    $_SESSION['supplier_form_token'] = bin2hex(random_bytes(16));
+}
+
+if(isset($_POST['submit'])) {
+    if (!isset($_POST['form_token']) || $_POST['form_token'] !== $_SESSION['supplier_form_token']) {
+        $message = "<div class='alert alert-warning'>This form was already submitted or is invalid. Please try again.</div>";
+    } else {
+        unset($_SESSION['supplier_form_token']);
+
+        $name = $_POST['supplier_name'];
+        $phone = $_POST['phone'];
+        $email = $_POST['email'];
+
+        $stmt = $conn->prepare("INSERT INTO suppliers(supplier_name, phone, email) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $name, $phone, $email);
+        $stmt->execute();
+
+        header("Location: add_supplier.php?success=1");
+        exit();
+    }
+}
+
+if (isset($_GET['success']) && $_GET['success'] == '1') {
+    $message = "<div class='alert alert-success'>Supplier Added Successfully</div>";
+}
 
 $products = $conn->query("SELECT p.product_id, p.product_name, c.category_name, p.price, p.stock FROM products p LEFT JOIN categories c ON p.category_id = c.category_id ORDER BY p.product_name");
 
-if(isset($_POST['submit'])) {
-
-    $name = $_POST['supplier_name'];
-    $phone = $_POST['phone'];
-    $email = $_POST['email'];
-
-    $stmt = $conn->prepare("INSERT INTO suppliers(supplier_name, phone, email) VALUES (?, ?, ?)");
-    $stmt->bind_param("sss", $name, $phone, $email);
-    $stmt->execute();
-
-    echo "<div class='alert alert-success'>Supplier Added Successfully</div>";
-}
+include("../includes/header.php");
 ?>
+
+<?php echo $message; ?>
+
 
 <h4 class="mb-3"><i class="fas fa-user-plus me-2"></i>Add Supplier</h4>
 
@@ -24,7 +45,7 @@ if(isset($_POST['submit'])) {
     <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
 </a>
 
-<form method="POST">
+<form method="POST" onsubmit="this.querySelector('button[type=submit]').disabled=true; return true;">
     <div class="mb-3">
         <label class="form-label">Supplier Name</label>
         <input type="text" name="supplier_name" class="form-control" placeholder="Enter supplier name" required>
@@ -37,6 +58,7 @@ if(isset($_POST['submit'])) {
         <label class="form-label">Email</label>
         <input type="email" name="email" class="form-control" placeholder="Enter email address">
     </div>
+    <input type="hidden" name="form_token" value="<?= htmlspecialchars($_SESSION['supplier_form_token']) ?>">
     <button type="submit" name="submit" class="btn btn-success">Add Supplier</button>
 </form>
 

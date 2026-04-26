@@ -4,7 +4,10 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 include("../config/db.php");
-include("../includes/header.php");
+
+function formatProductId($id) {
+    return 'P' . str_pad($id, 3, '0', STR_PAD_LEFT);
+}
 
 // Handle delete
 if (isset($_POST['delete_product'])) {
@@ -16,13 +19,16 @@ if (isset($_POST['delete_product'])) {
     $check_stmt->execute();
     $check_result = $check_stmt->get_result();
     $count = $check_result->fetch_assoc()['count'];
-    
+
     if ($count > 0) {
         echo "<div class='alert alert-warning'>Cannot delete product: It has associated purchases. Remove purchases first.</div>";
     } else {
         $stmt = $conn->prepare("DELETE FROM products WHERE product_id = ?");
         $stmt->bind_param("i", $product_id);
         if ($stmt->execute()) {
+            if ($conn->query("SELECT COUNT(*) as count FROM products")->fetch_assoc()['count'] == 0) {
+                $conn->query("ALTER TABLE products AUTO_INCREMENT = 1");
+            }
             echo "<div class='alert alert-success'>Product deleted successfully!</div>";
             // Redirect to prevent re-submission
             header("Location: view_products.php");
@@ -32,6 +38,8 @@ if (isset($_POST['delete_product'])) {
         }
     }
 }
+
+include("../includes/header.php");
 
 // Handle search
 $search = isset($_GET['search']) ? $_GET['search'] : '';
@@ -103,7 +111,7 @@ if (!$result) {
 
     <?php while($row = $result->fetch_assoc()): ?>
         <tr>
-            <td><?= htmlspecialchars($row['product_id']) ?></td>
+            <td><?= htmlspecialchars(formatProductId($row['product_id'])) ?></td>
             <td><?= htmlspecialchars($row['product_name']) ?></td>
             <td><?= htmlspecialchars($row['category_name'] ?? 'N/A') ?></td>
             <td>₹ <?= htmlspecialchars($row['price']) ?></td>
