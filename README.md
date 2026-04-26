@@ -1,53 +1,90 @@
-# Smart Inventory Management System - Project Report
+# Smart Inventory Management System
 
-## Project Overview
+A comprehensive PHP-based inventory management system designed to efficiently track products, suppliers, and purchases. The system provides a user-friendly web interface for managing inventory operations with real-time stock updates and reporting capabilities.
 
-This is a comprehensive PHP-based inventory management system designed to efficiently track products, suppliers, and purchases. The system provides a user-friendly web interface for managing inventory operations with real-time stock updates and reporting capabilities.
+## Features
 
-**Date Created:** April 23, 2026  
-**Version:** 1.0  
-**Technology Stack:** PHP, MySQL, HTML5, CSS3, Bootstrap 5, Font Awesome
+- **Product Management**: Add, view, and manage products with categories
+- **Supplier Management**: Maintain supplier information and contacts
+- **Purchase Tracking**: Record and monitor purchase transactions
+- **Stock Reports**: Generate low stock alerts and inventory reports
+- **Responsive Design**: Mobile-friendly interface using Bootstrap 5
 
 ## Technologies Used
 
 ### Backend
-- **PHP 7.4+**: Server-side scripting for business logic and database operations
-- **MySQL**: Relational database for data storage and management
-- **Prepared Statements**: Secure database queries to prevent SQL injection
+- PHP 7.4+
+- MySQL
+- Prepared Statements for security
 
 ### Frontend
-- **HTML5**: Semantic markup structure
-- **CSS3**: Custom styling with gradients and animations
-- **Bootstrap 5**: Responsive framework for UI components
-- **Font Awesome 6**: Icon library for visual enhancement
-- **JavaScript**: Client-side validation and interactivity
+- HTML5
+- CSS3
+- Bootstrap 5
+- Font Awesome 6
+- JavaScript
 
-### Development Tools
-- **XAMPP**: Local development environment (Apache, MySQL, PHP)
-- **VS Code**: Code editor with PHP extensions
+### Development Environment
+- XAMPP (Apache, MySQL, PHP)
+- VS Code
+
+## Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/keir-04/SMARTINVENTORY-mini.git
+   cd SMARTINVENTORY-mini
+   ```
+
+2. **Set up XAMPP:**
+   - Install XAMPP from [apachefriends.org](https://www.apachefriends.org/)
+   - Start Apache and MySQL services
+
+3. **Database Setup:**
+   - Create a database named `inventory_db` in phpMyAdmin
+   - Import the database schema (if provided) or create tables as per the structure below
+
+4. **Configure Database:**
+   - Update `config/db.php` with your database credentials
+
+5. **Run the Application:**
+   - Place the project folder in `C:\xampp\htdocs\`
+   - Access via `http://localhost/inventory_project`
 
 ## Database Structure
 
-### Tables and Attributes
+### Tables
 
-#### 1. `products`
-- `product_id` (INT, PRIMARY KEY, AUTO_INCREMENT): Unique product identifier
-- `product_name` (VARCHAR): Name of the product
-- `category_id` (INT, FOREIGN KEY): Reference to categories table
-- `price` (DECIMAL): Unit price of the product
-- `stock` (INT): Current stock quantity
+- **products**: product_id, product_name, category_id, price, stock
+- **categories**: category_id, category_name
+- **suppliers**: supplier_id, supplier_name, phone, email
+- **purchases**: (purchase-related fields)
 
-#### 2. `categories`
-- `category_id` (INT, PRIMARY KEY, AUTO_INCREMENT): Unique category identifier
-- `category_name` (VARCHAR): Name of the product category
+## Usage
 
-#### 3. `suppliers`
-- `supplier_id` (INT, PRIMARY KEY, AUTO_INCREMENT): Unique supplier identifier
-- `supplier_name` (VARCHAR): Name of the supplier
-- `phone` (VARCHAR): Contact phone number
-- `email` (VARCHAR): Contact email address
+- Navigate to the main dashboard
+- Use the menu to access different modules:
+  - Products: Manage inventory items
+  - Suppliers: Manage supplier contacts
+  - Purchases: Track purchase orders
+  - Reports: View stock levels and alerts
 
-#### 4. `purchases`
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+**Created:** April 23, 2026  
+**Version:** 1.0
 - `purchase_id` (INT, PRIMARY KEY, AUTO_INCREMENT): Unique purchase identifier
 - `supplier_id` (INT, FOREIGN KEY): Reference to suppliers table
 - `purchase_date` (DATE): Date of purchase
