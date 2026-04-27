@@ -5,7 +5,7 @@ include("config/db.php");
 // Get counts
 $product_count = $conn->query("SELECT COUNT(*) as count FROM products")->fetch_assoc()['count'];
 $supplier_count = $conn->query("SELECT COUNT(*) as count FROM suppliers")->fetch_assoc()['count'];
-$low_stock_count = $conn->query("SELECT COUNT(*) as count FROM products WHERE stock < 5")->fetch_assoc()['count'];
+$low_stock_count = $conn->query("SELECT COUNT(*) as count FROM products WHERE stock < 10")->fetch_assoc()['count'];
 $total_value = $conn->query("SELECT SUM(price * stock) as total FROM products")->fetch_assoc()['total'];
 ?>
 
@@ -82,6 +82,16 @@ $total_value = $conn->query("SELECT SUM(price * stock) as total FROM products")-
             </div>
         </div>
     </div>
+
+    <div class="col-md-3">
+        <div class="card dashboard-card bg-secondary text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                <h5>View Purchases</h5>
+                <a href="purchases/view_purchase.php" class="btn btn-light btn-sm mt-2">Go</a>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="row g-4">
@@ -102,6 +112,41 @@ $total_value = $conn->query("SELECT SUM(price * stock) as total FROM products")-
                 <h5>Low Stock Report</h5>
                 <p class="mb-1">Items: <?php echo $low_stock_count; ?></p>
                 <a href="reports/low_stock.php" class="btn btn-light btn-sm mt-2">Go</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <a href="products/add_product.php" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-plus-circle me-2"></i>Add Product
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="purchases/add_purchase.php" class="btn btn-outline-success w-100">
+                            <i class="fas fa-cart-plus me-2"></i>Add Purchase
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="suppliers/add_supplier.php" class="btn btn-outline-info w-100">
+                            <i class="fas fa-user-plus me-2"></i>Add Supplier
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="reports/low_stock.php" class="btn btn-outline-warning w-100">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Low Stock Alert
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

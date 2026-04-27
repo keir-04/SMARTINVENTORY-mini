@@ -1,9 +1,14 @@
-</div>
+</div> <!-- End container -->
 
-<footer class="text-center mt-5 p-4 bg-dark text-light">
+<footer class="mt-5 py-3 bg-light text-center">
     <div class="container">
-        <p class="mb-2"><strong>Smart Inventory System</strong> - Efficiently manage your products, suppliers, and purchases.</p>
-        <small>&copy; <?php echo date('Y'); ?> All rights reserved.</small>
+        <span class="text-muted">&copy; 2024 Smart Inventory System</span>
+        <?php if(isset($conn)): ?>
+            <div class="mt-2" style="font-size: 0.8rem; color: #aaa;">
+                Connected to: <?php echo htmlspecialchars($host); ?>:<?php echo $port; ?> | 
+                Database: <?php echo htmlspecialchars($db); ?>
+            </div>
+        <?php endif; ?>
     </div>
 </footer>
 

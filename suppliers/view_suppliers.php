@@ -51,6 +51,15 @@ ORDER BY s.supplier_name
     <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
 </a>
 
+<div class="d-flex gap-2 mb-3">
+    <a href="add_supplier.php" class="btn btn-outline-success">
+        <i class="fas fa-plus me-1"></i> Add New Supplier
+    </a>
+    <a href="../purchases/add_purchase.php" class="btn btn-outline-primary">
+        <i class="fas fa-cart-plus me-1"></i> Add Purchase
+    </a>
+</div>
+
 <?php if ($result->num_rows == 0): ?>
     <div class="alert alert-warning">No suppliers found. Add suppliers first.</div>
 <?php else: ?>
@@ -69,19 +78,19 @@ ORDER BY s.supplier_name
 
     <?php while($row = $result->fetch_assoc()): ?>
         <tr>
-            <td><?= htmlspecialchars($row['supplier_name']) ?></td>
-            <td><?= htmlspecialchars($row['phone']) ?></td>
-            <td><?= htmlspecialchars($row['email']) ?></td>
+            <td><?php echo htmlspecialchars($row['supplier_name']) ?></td>
+            <td><?php echo htmlspecialchars($row['phone']) ?></td>
+            <td><?php echo htmlspecialchars($row['email']) ?></td>
             <td>
                 <?php if(!empty($row['products'])): ?>
-                    <small class="text-muted"><?= htmlspecialchars($row['products']) ?></small>
+                    <small class="text-muted"><?php echo htmlspecialchars($row['products']) ?></small>
                 <?php else: ?>
                     <small class="text-muted">No products</small>
                 <?php endif; ?>
             </td>
             <td>
                 <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this supplier?');">
-                    <input type="hidden" name="supplier_id" value="<?= $row['supplier_id'] ?>">
+                    <input type="hidden" name="supplier_id" value="<?php echo $row['supplier_id'] ?>">
                     <button type="submit" name="delete_supplier" class="btn btn-danger btn-sm">
                         <i class="fas fa-trash"></i> Delete
                     </button>

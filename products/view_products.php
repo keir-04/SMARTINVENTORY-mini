@@ -1,7 +1,7 @@
 <?php
 // 🔴 Show all errors (remove in production)
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// error_reporting(E_ALL);
+// ini_set('display_errors', 1);
 
 include("../config/db.php");
 
@@ -44,7 +44,7 @@ include("../includes/header.php");
 // Handle search
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 
-// ✅ SQL Query (LEFT JOIN prevents missing category issue)
+// ✅ SQL Query (Restored and robust)
 $sql = "
 SELECT 
     p.product_id,
@@ -52,19 +52,20 @@ SELECT
     c.category_name,
     p.price,
     p.stock,
-    GROUP_CONCAT(DISTINCT s.supplier_name SEPARATOR ', ') as suppliers
+    (SELECT GROUP_CONCAT(DISTINCT s.supplier_name SEPARATOR ', ') 
+     FROM suppliers s 
+     JOIN purchases pr ON s.supplier_id = pr.supplier_id 
+     JOIN purchase_items pi ON pr.purchase_id = pi.purchase_id 
+     WHERE pi.product_id = p.product_id) as suppliers
 FROM products p
-LEFT JOIN categories c 
-    ON p.category_id = c.category_id
-LEFT JOIN purchase_items pi ON p.product_id = pi.product_id
-LEFT JOIN purchases pr ON pi.purchase_id = pr.purchase_id
-LEFT JOIN suppliers s ON pr.supplier_id = s.supplier_id
-GROUP BY p.product_id, p.product_name, c.category_name, p.price, p.stock
+LEFT JOIN categories c ON p.category_id = c.category_id
 ";
 
 if (!empty($search)) {
-    $sql .= " HAVING p.product_name LIKE '%" . $conn->real_escape_string($search) . "%'";
+    $sql .= " WHERE p.product_name LIKE '%" . $conn->real_escape_string($search) . "%'";
 }
+
+$sql .= " ORDER BY p.product_name";
 
 $result = $conn->query($sql);
 
@@ -79,6 +80,18 @@ if (!$result) {
 <a href="../index.php" class="btn btn-secondary mb-3">
     <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
 </a>
+
+<div class="d-flex gap-2 mb-3">
+    <a href="add_product.php" class="btn btn-outline-success">
+        <i class="fas fa-plus me-1"></i> Add New Product
+    </a>
+    <a href="../purchases/add_purchase.php" class="btn btn-outline-primary">
+        <i class="fas fa-cart-plus me-1"></i> Add Purchase
+    </a>
+    <a href="../reports/low_stock.php" class="btn btn-outline-warning">
+        <i class="fas fa-exclamation-triangle me-1"></i> Low Stock Report
+    </a>
+</div>
 
 <!-- Search Form -->
 <form method="GET" class="mb-3">
@@ -111,27 +124,27 @@ if (!$result) {
 
     <?php while($row = $result->fetch_assoc()): ?>
         <tr>
-            <td><?= htmlspecialchars(formatProductId($row['product_id'])) ?></td>
-            <td><?= htmlspecialchars($row['product_name']) ?></td>
-            <td><?= htmlspecialchars($row['category_name'] ?? 'N/A') ?></td>
-            <td>₹ <?= htmlspecialchars($row['price']) ?></td>
+            <td><?php echo htmlspecialchars(formatProductId($row['product_id'])) ?></td>
+            <td><?php echo htmlspecialchars($row['product_name']) ?></td>
+            <td><?php echo htmlspecialchars($row['category_name'] ?? 'N/A') ?></td>
+            <td>₹ <?php echo htmlspecialchars($row['price']) ?></td>
             <td>
-                <?php if($row['stock'] < 5): ?>
-                    <span class="badge bg-danger"><?= $row['stock'] ?></span>
+                <?php if($row['stock'] < 10): ?>
+                    <span class="badge bg-danger"><?php echo $row['stock'] ?></span>
                 <?php else: ?>
-                    <span class="badge bg-success"><?= $row['stock'] ?></span>
+                    <span class="badge bg-success"><?php echo $row['stock'] ?></span>
                 <?php endif; ?>
             </td>
             <td>
                 <?php if(!empty($row['suppliers'])): ?>
-                    <small class="text-muted"><?= htmlspecialchars($row['suppliers']) ?></small>
+                    <small class="text-muted"><?php echo htmlspecialchars($row['suppliers']) ?></small>
                 <?php else: ?>
                     <small class="text-muted">No suppliers yet</small>
                 <?php endif; ?>
             </td>
             <td>
                 <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
-                    <input type="hidden" name="product_id" value="<?= $row['product_id'] ?>">
+                    <input type="hidden" name="product_id" value="<?php echo $row['product_id'] ?>">
                     <button type="submit" name="delete_product" class="btn btn-danger btn-sm">
                         <i class="fas fa-trash"></i> Delete
                     </button>
@@ -162,15 +175,15 @@ if ($suppliers_result->num_rows == 0): ?>
                 <div class="card-body">
                     <h6 class="card-title">
                         <i class="fas fa-truck me-2 text-primary"></i>
-                        <?= htmlspecialchars($supplier['supplier_name']) ?>
+                        <?php echo htmlspecialchars($supplier['supplier_name']) ?>
                     </h6>
                     <p class="card-text mb-1">
                         <i class="fas fa-phone me-2"></i>
-                        <?= htmlspecialchars($supplier['phone'] ?: 'N/A') ?>
+                        <?php echo htmlspecialchars($supplier['phone'] ?: 'N/A') ?>
                     </p>
                     <p class="card-text">
                         <i class="fas fa-envelope me-2"></i>
-                        <?= htmlspecialchars($supplier['email'] ?: 'N/A') ?>
+                        <?php echo htmlspecialchars($supplier['email'] ?: 'N/A') ?>
                     </p>
                 </div>
             </div>

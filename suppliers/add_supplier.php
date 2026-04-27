@@ -8,9 +8,11 @@ if (!isset($_SESSION['supplier_form_token'])) {
     $_SESSION['supplier_form_token'] = bin2hex(random_bytes(16));
 }
 
-if(isset($_POST['submit'])) {
-    if (!isset($_POST['form_token']) || $_POST['form_token'] !== $_SESSION['supplier_form_token']) {
-        $message = "<div class='alert alert-warning'>This form was already submitted or is invalid. Please try again.</div>";
+if(isset($_POST['supplier_name'])) {
+    $token_valid = isset($_POST['form_token']) && isset($_SESSION['supplier_form_token']) && $_POST['form_token'] === $_SESSION['supplier_form_token'];
+    
+    if (!$token_valid) {
+        $message = "<div class='alert alert-warning'>Session expired or invalid form submission. Please refresh and try again.</div>";
     } else {
         unset($_SESSION['supplier_form_token']);
 
@@ -18,17 +20,29 @@ if(isset($_POST['submit'])) {
         $phone = $_POST['phone'];
         $email = $_POST['email'];
 
-        $stmt = $conn->prepare("INSERT INTO suppliers(supplier_name, phone, email) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $name, $phone, $email);
-        $stmt->execute();
+        try {
+            $stmt = $conn->prepare("INSERT INTO suppliers(supplier_name, phone, email) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $name, $phone, $email);
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to insert supplier: " . $stmt->error);
+            }
 
-        header("Location: add_supplier.php?success=1");
-        exit();
+            header("Location: add_supplier.php?success=1");
+            exit();
+        } catch (Exception $e) {
+            $message = "<div class='alert alert-danger'>Error adding supplier: " . $e->getMessage() . "</div>";
+        }
     }
 }
 
 if (isset($_GET['success']) && $_GET['success'] == '1') {
-    $message = "<div class='alert alert-success'>Supplier Added Successfully</div>";
+    $message = "<div class='alert alert-success'>
+        <i class='fas fa-check-circle me-2'></i>Supplier Added Successfully!
+        <div class='mt-2'>
+            <a href='view_suppliers.php' class='btn btn-sm btn-outline-success me-2'>View Suppliers</a>
+            <a href='add_supplier.php' class='btn btn-sm btn-outline-primary'>Add Another Supplier</a>
+        </div>
+    </div>";
 }
 
 $products = $conn->query("SELECT p.product_id, p.product_name, c.category_name, p.price, p.stock FROM products p LEFT JOIN categories c ON p.category_id = c.category_id ORDER BY p.product_name");
@@ -45,6 +59,15 @@ include("../includes/header.php");
     <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
 </a>
 
+<div class="d-flex gap-2 mb-3">
+    <a href="view_suppliers.php" class="btn btn-outline-primary">
+        <i class="fas fa-users me-1"></i> View Suppliers
+    </a>
+    <a href="add_supplier.php" class="btn btn-outline-success">
+        <i class="fas fa-plus me-1"></i> Add Another Supplier
+    </a>
+</div>
+
 <form method="POST" onsubmit="this.querySelector('button[type=submit]').disabled=true; return true;">
     <div class="mb-3">
         <label class="form-label">Supplier Name</label>
@@ -58,7 +81,7 @@ include("../includes/header.php");
         <label class="form-label">Email</label>
         <input type="email" name="email" class="form-control" placeholder="Enter email address">
     </div>
-    <input type="hidden" name="form_token" value="<?= htmlspecialchars($_SESSION['supplier_form_token']) ?>">
+    <input type="hidden" name="form_token" value="<?php echo htmlspecialchars($_SESSION['supplier_form_token']) ?>">
     <button type="submit" name="submit" class="btn btn-success">Add Supplier</button>
 </form>
 
@@ -84,15 +107,15 @@ include("../includes/header.php");
 
     <?php while($product = $products->fetch_assoc()): ?>
         <tr>
-            <td><?= htmlspecialchars($product['product_id']) ?></td>
-            <td><?= htmlspecialchars($product['product_name']) ?></td>
-            <td><?= htmlspecialchars($product['category_name'] ?? 'N/A') ?></td>
-            <td>₹ <?= htmlspecialchars($product['price']) ?></td>
+            <td><?php echo htmlspecialchars($product['product_id']) ?></td>
+            <td><?php echo htmlspecialchars($product['product_name']) ?></td>
+            <td><?php echo htmlspecialchars($product['category_name'] ?? 'N/A') ?></td>
+            <td>₹ <?php echo htmlspecialchars($product['price']) ?></td>
             <td>
-                <?php if($product['stock'] < 5): ?>
-                    <span class="badge bg-danger"><?= $product['stock'] ?></span>
+                <?php if($product['stock'] < 10): ?>
+                    <span class="badge bg-danger"><?php echo $product['stock'] ?></span>
                 <?php else: ?>
-                    <span class="badge bg-success"><?= $product['stock'] ?></span>
+                    <span class="badge bg-success"><?php echo $product['stock'] ?></span>
                 <?php endif; ?>
             </td>
         </tr>
